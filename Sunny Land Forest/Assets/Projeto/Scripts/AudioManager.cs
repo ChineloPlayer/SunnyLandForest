@@ -2,49 +2,36 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour
 {
    
     public static AudioManager Instance;
-    [SerializeField] AudioSource somDaCenoura;
-    public AudioSource morteEnemy;
-    //public AudioSource mortePlayer;
+    public AudioMixer soundControler, sfxSoundControl;
 
-    //audios do player
-    #region
-    [SerializeField] AudioSource somDoPulo;
-    public AudioSource mortePlayer;
-
-
-    #endregion
     private void Awake()
     {
-        if (Instance != this && Instance != null) Destroy(this.gameObject);
-        else Instance = this;
+        if (Instance != this && Instance != null)
+        {
+            Destroy(this.gameObject);
+        }
+
+        else
+        {
+            Instance = this;
+        }
+
+
     }
 
-    public void CarrotSound()
+    public void SetVolume(float audioSetController)
     {
-        somDaCenoura.Play();
+        soundControler.SetFloat("Sound", audioSetController);
     }
 
-    public void JumpSound()
+    public void SFXVolum(float audioSFXController)
     {
-        somDoPulo.Play();
+        sfxSoundControl.SetFloat("EffectSound", audioSFXController);
     }
-
-    public void DeathEnemy()
-    {
-        morteEnemy.Play();
-    }
-
-    public void DeathPlayer()
-    {
-        mortePlayer.Play();
-    }
-
-
-
 }

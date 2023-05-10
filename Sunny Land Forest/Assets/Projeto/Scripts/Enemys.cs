@@ -2,16 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IALesma : MonoBehaviour
+public class Enemys : MonoBehaviour
 {
     public   Transform          enemy;
     public   SpriteRenderer     spriteEnemy;
     public   Transform[]        position;
     public   float              velocity;
     public   bool               isRight;
-
+    public GameObject hitPrefab;
     
     private  int                idTarget;
+    private AudioSource         audioS;
+    private bool                isDead = false;
 
     void Start()
     {
@@ -20,13 +22,14 @@ public class IALesma : MonoBehaviour
         spriteEnemy = enemy.gameObject.GetComponent<SpriteRenderer>();
         enemy.position = position[0].position;
         idTarget = 1;
+        audioS = GetComponent<AudioSource>();
 
     }
 
     void Update()
     {
         //se o objeto enemy estiver diferente de vazio, então vai ser executado tudo oque está dentro da condição if
-        if(enemy != null)
+        if(enemy != null && !isDead)
         {
             //vai fazer o inimigo se mover de um ponto até o outro com uma velocidade X
             enemy.position = Vector3.MoveTowards(enemy.position, position[idTarget].position, velocity * Time.deltaTime);
@@ -65,4 +68,30 @@ public class IALesma : MonoBehaviour
         spriteEnemy.flipX = !spriteEnemy.flipX;
     }
 
+    public void TakeDamage(Rigidbody2D playerRB)
+    {
+        isDead = true;
+        //estabiliza a posição X normal e adiciona o valor 0 ao Y
+        playerRB.velocity = new Vector2(playerRB.velocity.x, 0);
+        //adiciona força ao eixo Y fazendo com que o personagem pule quando entrar em contato com 
+        //o inimigo;
+        playerRB.AddForce(new Vector2(0, 600));
+
+        StartCoroutine(EnemyDeath());
+    }
+
+    IEnumerator EnemyDeath()
+    {
+        GetComponentInChildren<SpriteRenderer>().enabled = false;
+        var boxColliders = GetComponentsInChildren<BoxCollider2D>();
+        foreach (var item in boxColliders)
+        {
+            item.enabled = false;
+        }
+        Instantiate(hitPrefab, enemy.transform);
+        audioS.Play();
+        yield return new WaitForSeconds(0.5f);
+
+        Destroy(this.gameObject);
+    }
 }

@@ -25,16 +25,15 @@ public class PlatControl : MonoBehaviour
 
     void Update()
     {
-        if (plataforma.position == pontA.position)
-        {
-            destino = pontB.position;
-        }
-        if (plataforma.position == pontB.position)
-        {
-            destino = pontA.position;
-        }
+            if (plataforma.position == pontA.position)
+            {
+                destino = pontB.position;
+            }
+            if (plataforma.position == pontB.position)
+            {
+                destino = pontA.position;
+            }
 
-        plataforma.position = Vector3.MoveTowards(plataforma.position, destino, velocidadePlat);
-
-    }
+            plataforma.position = Vector3.MoveTowards(plataforma.position, destino, velocidadePlat * Time.deltaTime);
+        }
 }

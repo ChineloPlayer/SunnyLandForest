@@ -55,6 +55,7 @@ MonoBehaviour:
   - {fileID: 4165761105731738498}
   velocity: 2.5
   isRight: 1
+  hitPrefab: {fileID: 4914246330019559777, guid: b159553787fafbd4b9383c20de45caf1, type: 3}
 --- !u!82 &4165761105673466059
 AudioSource:
   m_ObjectHideFlags: 0
@@ -64,7 +65,7 @@ AudioSource:
   m_GameObject: {fileID: 4165761105673467700}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: df3a86ac43414b24b9d412250a71cea0, type: 2}
   m_audioClip: {fileID: 8300000, guid: 813d17b03c7b89049bc3a001bca2e841, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -163,7 +164,7 @@ GameObject:
   m_Layer: 0
   m_Name: PontoB
   m_TagString: Untagged
-  m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -175,7 +176,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4165761105731738509}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.4745603, y: -3.407752, z: -0.084071316}
+  m_LocalPosition: {x: 10.26, y: -3.407752, z: -0.084071316}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -194,7 +195,7 @@ GameObject:
   m_Layer: 0
   m_Name: PontoA
   m_TagString: Untagged
-  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -206,7 +207,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4165761106188764080}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.74544, y: -3.407752, z: -0.084071316}
+  m_LocalPosition: {x: -7.5, y: -3.407752, z: -0.084071316}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -334,7 +335,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.13790703, y: 0.30657324}
+  m_Offset: {x: -0.08325362, y: 0.4044776}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -345,7 +346,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.7030287, y: 0.07797521}
+  m_Size: {x: 0.8123355, y: 0.103515625}
   m_EdgeRadius: 0
 --- !u!61 &4165761107063040368
 BoxCollider2D:

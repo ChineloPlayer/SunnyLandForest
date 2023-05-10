@@ -15,13 +15,7 @@ public class ControlCena : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-       CallBackScene();
+        Time.timeScale = 1f;
     }
 
 
@@ -30,34 +24,22 @@ public class ControlCena : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
-   
 
-    public void CallScene(string name)
+    public void CallSceneMainMenu(string name)
     {
-        //SceneManager.LoadScene(name);
         SceneManager.LoadScene(0);
     }
+
 
     public void CallSceneConfig()
     {
         SceneManager.LoadScene(2);
     }
 
-    public void CallBackScene()
-    {
-        if (Input.GetKey(KeyCode.Escape))
-        {
-            SceneManager.LoadScene(0);
-        }
-    }
 
     public void QuitGame()
     {
         Application.Quit();
     }
-    //testes
-    #region
-
-    #endregion
 
 }

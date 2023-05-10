@@ -1,19 +1,24 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 using UnityEngine.SceneManagement;
-public class MovePlayer : MonoBehaviour
+public class Player : MonoBehaviour
 {
-    
     private Rigidbody2D     bodyPlayer;
     private Animator        pAnimations;
     private SpriteRenderer  blinkHero;
-    public GameObject       pDie;
+    //public GameObject       pDie;
+    public AudioSource      jumpSound;
+    public AudioSource      playerAuds;
+    public AudioSource      deathEnemy;
+    public AudioSource      carrotSound;
+    public AudioClip        playerDeath;
+
 
     [Header("Controladores")]
     public Transform        groundCheck;
     public bool             isGrounded = false;
+    public bool isDead { get; private set; }
 
     public bool             fRight = true;
     private bool            invincible;
@@ -42,6 +47,8 @@ public class MovePlayer : MonoBehaviour
         bodyPlayer = GetComponent<Rigidbody2D>();
         pAnimations = GetComponent<Animator>();
         blinkHero = GetComponent<SpriteRenderer>();
+        
+        isDead = false;
         //_controler = FindObjectOfType<ControlManager>();
 
     }
@@ -49,6 +56,7 @@ public class MovePlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isDead) return;
 
         isGrounded = Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground"));
         touchRun = Input.GetAxisRaw("Horizontal");
@@ -76,6 +84,8 @@ public class MovePlayer : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isDead) return;
+
         ExecMovement(touchRun);
         if (jump)
         {
@@ -98,7 +108,7 @@ public class MovePlayer : MonoBehaviour
         if (isGrounded || numberJump < maxJump)
         {
             bodyPlayer.velocity = Vector2.up * forceJump;
-            AudioManager.Instance.JumpSound();
+            jumpSound.Play();
             isGrounded = false;
             numberJump++;
             CreateDust();
@@ -112,8 +122,10 @@ public class MovePlayer : MonoBehaviour
     void Movimentos()
     {
         pAnimations.SetBool("Walk", bodyPlayer.velocity.x != 0);
-        pAnimations.SetBool("Jump", !isGrounded);
-        
+        if(!isGrounded && !isDead)
+            pAnimations.SetBool("Jump", true);
+        else
+            pAnimations.SetBool("Jump", false);
     }
 
     void Flip()
@@ -134,27 +146,12 @@ public class MovePlayer : MonoBehaviour
             //condição para o programa reconhecer que qualquer gameObject que tenha a tag "Coletaveis" será destruida
             //caso entre em contato com o player.
             case "Coletaveis":
-                
-                AudioManager.Instance.CarrotSound();
-                ControlManager.Instance.pontuacao(1);
-                Destroy(collision.gameObject);
+                collision.gameObject.GetComponent<Colectables>().AddScore();
                 break;
 
                 //destrói o inimigo quando pula em cima dele
             case "Enemy":
-                GameObject tempExplosao = Instantiate(ControlManager.Instance.hitPrefab, transform.position, transform.localRotation);
-                Destroy(tempExplosao, 0.5f);
-                Rigidbody2D fSalto = GetComponentInParent<Rigidbody2D>();
-                //estabiliza a posição X normal e adiciona o valor 0 ao Y
-                fSalto.velocity = new Vector2(fSalto.velocity.x, 0);
-                //adiciona força ao eixo Y fazendo com que o personagem pule quando entrar em contato com 
-                //o inimigo;
-                fSalto.AddForce(new Vector2(0, 600));
-
-                AudioManager.Instance.DeathEnemy();
-
-                Destroy(collision.gameObject);
-                
+                collision.gameObject.GetComponentInParent<Enemys>().TakeDamage(bodyPlayer);
                 break;
 
             case "Damage":
@@ -164,19 +161,21 @@ public class MovePlayer : MonoBehaviour
     }
 
 
-
     void OnCollisionEnter2D(Collision2D collision)
     {
         switch (collision.gameObject.tag)
         {
             case "Enemy":
-            Hurt();
+                Hurt();
                 break;
 
             case "Plataforma":
-                
                 this.transform.parent = collision.transform;
-            break;
+                break;
+
+            case "Player":
+                Hurt();
+                break;
 
         }
     }
@@ -193,26 +192,24 @@ public class MovePlayer : MonoBehaviour
     }
 
 
-    void Hurt()
+    public void Hurt()
     {
-        if (!invincible)
+        if (!invincible && !isDead)
         {
             invincible = true;
             life--;
-            StartCoroutine("Dano");
             ControlManager.Instance.lifeChanger(life);
             if (life < 1)
             {
-                GameObject pDieOnly = Instantiate(pDie, transform.position, Quaternion.identity);
-                Rigidbody2D rbDie = pDieOnly.GetComponent<Rigidbody2D>();
-                rbDie.AddForce(new Vector2(150f, 500f));
-                AudioManager.Instance.DeathPlayer();
-                Invoke("LoadGame", 4f);
-                gameObject.SetActive(false);
+                StartCoroutine(Death());
+            }
+            else
+            {
+                StartCoroutine(Dano());
 
             }
         }
-     
+
     }
 
     public void LoadGame()
@@ -234,6 +231,26 @@ public class MovePlayer : MonoBehaviour
 
         blinkHero.color = Color.white;
         invincible = false;
+    }
+
+    IEnumerator Death()
+    {
+        isDead = true;
+        AudioClip audiosAssistentPlayer = playerDeath;
+        playerAuds.clip = playerDeath;
+        playerAuds.Play();
+        this.gameObject.GetComponent<CapsuleCollider2D>().enabled = false;
+        bodyPlayer.velocity = Vector2.zero;
+        bodyPlayer.bodyType = RigidbodyType2D.Kinematic;
+        blinkHero.sortingOrder = 100;
+        pAnimations.SetBool("Death", isDead);
+
+        yield return new WaitForSeconds(1f);
+        bodyPlayer.bodyType = RigidbodyType2D.Dynamic;
+        bodyPlayer.AddForce(new Vector2(5f, 15f), ForceMode2D.Impulse);
+        
+        yield return new WaitForSeconds(2f);
+        LoadGame();
     }
 
 

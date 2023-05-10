@@ -15,7 +15,6 @@ public class ControlManager : MonoBehaviour
     public Sprite[] life;
     public Image countLife;
 
-
     private void Awake()
     {
         if (Instance != this && Instance != null) Destroy(this.gameObject);
@@ -33,7 +32,7 @@ public class ControlManager : MonoBehaviour
         countLife.sprite = life[changer];
     }
 
-
+ 
 
 
 }
