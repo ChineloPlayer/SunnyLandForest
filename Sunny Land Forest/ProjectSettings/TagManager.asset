@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Plataforma
   - Damage
+  - Ladder
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - Ground
   - Inimigo
   - Player
-  - 
+  - Ladder
   - 
   - 
   - 

@@ -19,7 +19,6 @@ public class ControlSettings : MonoBehaviour
         //musicVol.onValueChanged.AddListener(delegate { onMusicSlider(); });
     }
 
-
     public void FullScreen()
     {
         Screen.fullScreen = fullScreenToggle.isOn;

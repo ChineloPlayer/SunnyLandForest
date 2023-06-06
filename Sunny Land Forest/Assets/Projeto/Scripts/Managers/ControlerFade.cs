@@ -1,12 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+
 public class ControlerFade : MonoBehaviour
 {
-
 
     public static ControlerFade _instanceFade;
 
@@ -20,13 +18,10 @@ public class ControlerFade : MonoBehaviour
     private float _timeFade;
     public GameObject desligarFade;
 
-
-
     void Awake()
     {
         _instanceFade = this;
     }
-
 
     IEnumerator StartFade()
     {
@@ -34,7 +29,7 @@ public class ControlerFade : MonoBehaviour
         _timeFade = 0f;
 
 
-        while ( _timeFade <= _durationFade)
+        while (_timeFade <= _durationFade)
         {
             _fadeImg.color = Color.Lerp(_initialColor, _finalColor, _timeFade / _durationFade);
             _timeFade += Time.deltaTime;
@@ -43,7 +38,6 @@ public class ControlerFade : MonoBehaviour
         }
         Destroy(desligarFade, 3f);
         _isFade = false;
-        
     }
 
 
@@ -56,6 +50,6 @@ public class ControlerFade : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
+
     }
 }

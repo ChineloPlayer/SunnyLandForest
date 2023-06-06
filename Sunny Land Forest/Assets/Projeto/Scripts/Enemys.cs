@@ -9,7 +9,7 @@ public class Enemys : MonoBehaviour
     public   Transform[]        position;
     public   float              velocity;
     public   bool               isRight;
-    public GameObject hitPrefab;
+    public   GameObject         hitPrefab;
     
     private  int                idTarget;
     private AudioSource         audioS;
@@ -63,7 +63,6 @@ public class Enemys : MonoBehaviour
 
     void Flip()
     {
-
         isRight = !isRight;
         spriteEnemy.flipX = !spriteEnemy.flipX;
     }

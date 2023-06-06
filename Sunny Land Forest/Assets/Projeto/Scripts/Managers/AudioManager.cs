@@ -8,7 +8,11 @@ public class AudioManager : MonoBehaviour
 {
    
     public static AudioManager Instance;
+    public static float volume = 0.1f;
+    public static float sfxVolume = 0.1f;
     public AudioMixer soundControler, sfxSoundControl;
+
+
 
     private void Awake()
     {
@@ -20,18 +24,20 @@ public class AudioManager : MonoBehaviour
         else
         {
             Instance = this;
+            DontDestroyOnLoad(this.gameObject);
         }
-
 
     }
 
     public void SetVolume(float audioSetController)
     {
-        soundControler.SetFloat("Sound", audioSetController);
+        volume = audioSetController;
+        soundControler.SetFloat("Sound", volume);
     }
 
     public void SFXVolum(float audioSFXController)
     {
-        sfxSoundControl.SetFloat("EffectSound", audioSFXController);
+        sfxVolume = audioSFXController;
+        sfxSoundControl.SetFloat("EffectSound", sfxVolume);
     }
 }

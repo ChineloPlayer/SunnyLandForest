@@ -26,8 +26,6 @@ public class PauseMenu : MonoBehaviour
                 PausedFunction();
             }
         }
-
-
     }
 
     public void Resume()

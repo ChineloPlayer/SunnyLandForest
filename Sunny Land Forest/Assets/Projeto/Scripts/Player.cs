@@ -4,52 +4,61 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
-    private Rigidbody2D     bodyPlayer;
-    private Animator        pAnimations;
-    private SpriteRenderer  blinkHero;
-    //public GameObject       pDie;
-    public AudioSource      jumpSound;
-    public AudioSource      playerAuds;
-    public AudioSource      deathEnemy;
-    public AudioSource      carrotSound;
-    public AudioClip        playerDeath;
+    private Rigidbody2D bodyPlayer;
+    private Animator pAnimations;
+    private SpriteRenderer blinkHero;
+    public AudioSource jumpSound;
+    public AudioSource playerAuds;
+    public AudioClip playerDeath;
+    public Collider2D captureCol;
 
 
-    [Header("Controladores")]
-    public Transform        groundCheck;
-    public bool             isGrounded = false;
+    [Header("ControladoresPlayer")]
+    public Transform groundCheck;
+    public bool isGrounded = false;
     public bool isDead { get; private set; }
 
-    public bool             fRight = true;
-    private bool            invincible;
+    public bool fRight = true;
+    private bool invincible;
 
-    private float           speed = 10;
-    public float            touchRun = 0.0f;
+    private float speed = 10;
+    public float touchRun = 0.0f;
 
-    public int              life = 3;
-    public Color            hiton;
-    public Color            noHit;
+    public int life = 3;
+    public Color hiton;
+    public Color noHit;
 
     //private ControlManager _controler;
 
     [Header("Saltos")]
-    public bool             jump = false;
-    public int              forceJump = 0;
-    public float            maxJump = 2;
-    public int              numberJump = 0;
+    public bool jump = false;
+    public int forceJump = 0;
+    public float maxJump = 2;
+    public int numberJump = 0;
+
+
+    [Header("Climb")]  
+    public LayerMask ladderLayer;
+    public float verticalClimb;
+    private float horizontalCheck;
+    public bool climbing;
+    public float climbSpeed = 80;
+    public float checkRadius = 0.3f;
+
 
 
     public ParticleSystem _poeira;
 
-  
+
+
     void Start()
     {
         bodyPlayer = GetComponent<Rigidbody2D>();
         pAnimations = GetComponent<Animator>();
         blinkHero = GetComponent<SpriteRenderer>();
-        
+        captureCol = GetComponent<Collider2D>();
+
         isDead = false;
-        //_controler = FindObjectOfType<ControlManager>();
 
     }
 
@@ -60,40 +69,44 @@ public class Player : MonoBehaviour
 
         isGrounded = Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground"));
         touchRun = Input.GetAxisRaw("Horizontal");
-        Movimentos();
-        
+        verticalClimb = Input.GetAxis("Vertical");
+        horizontalCheck = Input.GetAxisRaw("Horizontal");
 
+        //independent funcitions
+        Movimentos();
+        //------------------------------//
         if (Input.GetButtonDown("Jump"))
         {
             jump = true;
         }
-
-    }
-
-
-    void ExecMovement( float movementH )
-    {
         
-        bodyPlayer.velocity = new Vector2( movementH * speed, bodyPlayer.velocity.y);
-        if (movementH < 0 && fRight || (movementH > 0 && !fRight))
-        {
-           Flip();
-        }
-      
     }
 
     private void FixedUpdate()
     {
         if (isDead) return;
+            ExecMovement(touchRun);
+            if (jump)
+            {
+                JumpPlayer();
+            }
 
-        ExecMovement(touchRun);
-        if (jump)
-        {
-            JumpPlayer();
-        }
-
+        Climb();
     }
 
+    //ações do player
+    #region
+    void ExecMovement(float movementH)
+    {
+        if (!climbing)
+        {
+            bodyPlayer.velocity = new Vector2(movementH * speed, bodyPlayer.velocity.y);
+            if (movementH < 0 && fRight || (movementH > 0 && !fRight))
+            {
+                Flip();
+            }
+        }
+    }
 
     void JumpPlayer()
     {
@@ -116,13 +129,10 @@ public class Player : MonoBehaviour
         jump = false;
     }
 
-    
-
-
     void Movimentos()
     {
-        pAnimations.SetBool("Walk", bodyPlayer.velocity.x != 0);
-        if(!isGrounded && !isDead)
+        pAnimations.SetBool("Climb", bodyPlayer.velocity.x != 0);
+        if (!isGrounded && !isDead)
             pAnimations.SetBool("Jump", true);
         else
             pAnimations.SetBool("Jump", false);
@@ -136,7 +146,35 @@ public class Player : MonoBehaviour
         theScale *= -1;
         transform.localScale = new Vector3(theScale.x, transform.localScale.y, transform.localScale.z);
     }
+    public void Hurt()
+    {
+        if (!invincible && !isDead)
+        {
+            invincible = true;
+            life--;
+            ControlManager.Instance.lifeChanger(life);
+            if (life < 1)
+            {
+                StartCoroutine(Death());
+            }
+            else
+            {
+                StartCoroutine(Dano());
+            }
+        }
+    }
 
+    void CreateDust()
+    {
+        _poeira.Play();
+    }
+
+    #endregion
+
+    //------------------------------------------------------------------------------------//
+
+    //gatilhos de colisões
+    #region
     private void OnTriggerEnter2D(Collider2D collision)
     {
 
@@ -149,13 +187,28 @@ public class Player : MonoBehaviour
                 collision.gameObject.GetComponent<Colectables>().AddScore();
                 break;
 
-                //destrói o inimigo quando pula em cima dele
+            //destrói o inimigo quando pula em cima dele
             case "Enemy":
                 collision.gameObject.GetComponentInParent<Enemys>().TakeDamage(bodyPlayer);
                 break;
 
             case "Damage":
                 Hurt();
+                break;
+
+            case "Ladder":
+                Debug.Log("IstouchingLadder");
+                break;
+
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Ladder":
+                FinishClimb();
                 break;
         }
     }
@@ -190,38 +243,21 @@ public class Player : MonoBehaviour
                 break;
         }
     }
+    #endregion
 
-
-    public void Hurt()
-    {
-        if (!invincible && !isDead)
-        {
-            invincible = true;
-            life--;
-            ControlManager.Instance.lifeChanger(life);
-            if (life < 1)
-            {
-                StartCoroutine(Death());
-            }
-            else
-            {
-                StartCoroutine(Dano());
-
-            }
-        }
-
-    }
+    //------------------------------------------------------------------------------------//
 
     public void LoadGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    //corrotinas
+    #region
     IEnumerator Dano()
     {
-
         blinkHero.color = noHit;
-        for(float i = 0; i<1; i += 0.1f)
+        for (float i = 0; i < 1; i += 0.1f)
         {
             blinkHero.enabled = false;
             yield return new WaitForSeconds(0.10f);
@@ -248,15 +284,69 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(1f);
         bodyPlayer.bodyType = RigidbodyType2D.Dynamic;
         bodyPlayer.AddForce(new Vector2(5f, 15f), ForceMode2D.Impulse);
-        
+
         yield return new WaitForSeconds(2f);
         LoadGame();
     }
 
+    #endregion
 
-    void CreateDust()
+
+    bool TouchLadder()
     {
-        _poeira.Play();
+        return captureCol.IsTouchingLayers(ladderLayer);
     }
 
+    void Climb()
+    {
+
+        bool up = Physics2D.OverlapCircle(transform.position + new Vector3(0, -1), checkRadius, ladderLayer);
+
+        bool down = Physics2D.OverlapCircle(transform.position + new Vector3(0, -2), checkRadius, ladderLayer);
+
+        if (verticalClimb != 0 && TouchLadder())
+        {
+            climbing = true;
+            bodyPlayer.isKinematic = true;
+        }
+
+        if (climbing)
+        {
+
+            if (!up && verticalClimb >= 0)
+            {
+                FinishClimb();
+                return;
+            }
+
+            if (!down && verticalClimb <= 0)
+            {
+                FinishClimb();
+                return;
+            }
+
+
+            float positionY = verticalClimb * climbSpeed;
+            bodyPlayer.velocity = new Vector2(0, positionY);
+
+
+        }
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(transform.position + new Vector3(0, -1), checkRadius);
+        Gizmos.DrawWireSphere(transform.position + new Vector3(0, -2), checkRadius);
+    }
+    void FinishClimb()
+    {
+        climbing = false;
+        bodyPlayer.isKinematic = false;
+    }
+
+
 }
+

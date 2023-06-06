@@ -24,18 +24,15 @@ public class ControlCena : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
-
     public void CallSceneMainMenu(string name)
     {
         SceneManager.LoadScene(0);
     }
 
-
     public void CallSceneConfig()
     {
         SceneManager.LoadScene(2);
     }
-
 
     public void QuitGame()
     {

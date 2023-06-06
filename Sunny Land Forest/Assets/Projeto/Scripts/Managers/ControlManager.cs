@@ -30,6 +30,8 @@ public class ControlManager : MonoBehaviour
     public void lifeChanger( int changer )
     {
         countLife.sprite = life[changer];
+
+
     }
 
  
